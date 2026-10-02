@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cloud Photo Vault</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Supabase JavaScript Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+    <!-- ================= LOGIN PAGE ================= -->
+
+    <section id="authSection" class="auth-section">
+
+        <div class="auth-card">
+
+            <h1>Cloud Photo Vault</h1>
+
+            <p class="subtitle">
+                Securely store your photos in the cloud
+            </p>
+
+            <div class="tabs">
+                <button id="loginTab" class="tab active">
+                    Login
+                </button>
+
+                <button id="signupTab" class="tab">
+                    Sign Up
+                </button>
+            </div>
+
+            <form id="authForm">
+
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="Email address"
+                    required
+                >
+
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Password"
+                    required
+                    minlength="6"
+                >
+
+                <button type="submit" class="primary-btn">
+                    <span id="authButtonText">Login</span>
+                </button>
+
+            </form>
+
+            <p id="authMessage"></p>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= DASHBOARD ================= -->
+
+    <section id="dashboardSection" class="dashboard hidden">
+
+        <header class="navbar">
+
+            <div>
+                <h1>Cloud Photo Vault</h1>
+                <p id="userEmail"></p>
+            </div>
+
+            <button id="logoutBtn" class="logout-btn">
+                Logout
+            </button>
+
+        </header>
+
+
+        <main class="main-content">
+
+            <!-- Upload section -->
+
+            <div class="upload-box">
+
+                <h2>Upload Photos</h2>
+
+                <p>
+                    Select one or more images to store them securely in the cloud.
+                </p>
+
+                <input
+                    type="file"
+                    id="photoInput"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    multiple
+                >
+
+                <button id="uploadBtn" class="primary-btn">
+                    Upload Photos
+                </button>
+
+                <p id="uploadMessage"></p>
+
+            </div>
+
+
+            <!-- Gallery -->
+
+            <div class="gallery-section">
+
+                <div class="gallery-header">
+
+                    <div>
+                        <h2>My Photos</h2>
+                        <p id="photoCount">0 photos</p>
+                    </div>
+
+                    <button id="refreshBtn" class="secondary-btn">
+                        Refresh
+                    </button>
+
+                </div>
+
+                <div id="gallery" class="gallery">
+
+                    <p class="empty-message">
+                        No photos uploaded yet.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </section>
+
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>
