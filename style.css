@@ -301,27 +301,149 @@ input[type="file"] {
 .photo-actions {
     display: flex;
 
-    gap: 8px;
+    gap: 6px;
+
+    flex-wrap: wrap;
 }
 
 .photo-actions button {
     flex: 1;
 
-    padding: 9px;
+    padding: 8px 6px;
 
     border-radius: 7px;
 
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .download-btn {
     background: #eee;
 }
 
+.preview-btn {
+    background: #e9e7ff;
+
+    color: #493ac0;
+}
+
 .delete-btn {
     background: #ffe5e5;
 
     color: #c62828;
+}
+
+.preview-modal {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1000;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    padding: 24px;
+
+    background: rgba(0, 0, 0, 0.82);
+}
+
+.preview-content {
+    position: relative;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 12px;
+
+    max-width: min(100%, 1100px);
+
+    max-height: 100%;
+}
+
+.preview-content img {
+    display: block;
+
+    max-width: 100%;
+
+    max-height: calc(100vh - 100px);
+
+    object-fit: contain;
+}
+
+.preview-content p {
+    max-width: 100%;
+
+    color: white;
+
+    overflow-wrap: anywhere;
+
+    text-align: center;
+}
+
+.preview-nav {
+    position: absolute;
+
+    top: 50%;
+
+    z-index: 1;
+
+    width: 44px;
+
+    height: 44px;
+
+    transform: translateY(-50%);
+
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.9);
+
+    color: #222;
+
+    font-size: 20px;
+}
+
+.preview-previous {
+    left: 24px;
+}
+
+.preview-next {
+    right: 24px;
+}
+
+.preview-nav:disabled {
+    cursor: default;
+
+    opacity: 0.45;
+}
+
+.close-preview {
+    position: absolute;
+
+    top: -16px;
+
+    right: -16px;
+
+    z-index: 1;
+
+    width: 40px;
+
+    height: 40px;
+
+    border-radius: 50%;
+
+    background: white;
+
+    color: #222;
+
+    font-size: 28px;
+
+    line-height: 1;
 }
 
 .empty-message {
@@ -353,6 +475,24 @@ input[type="file"] {
 
     .auth-card {
         padding: 25px;
+    }
+
+    .preview-modal {
+        padding: 16px;
+    }
+
+    .preview-previous {
+        left: 12px;
+    }
+
+    .preview-next {
+        right: 12px;
+    }
+
+    .preview-nav {
+        width: 38px;
+
+        height: 38px;
     }
 
     .gallery {

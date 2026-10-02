@@ -78,7 +78,154 @@ const refreshBtn =
 const previewModal = document.getElementById("previewModal");
 const previewImage = document.getElementById("previewImage");
 const previewFileName = document.getElementById("previewFileName");
+const previewPosition = document.getElementById("previewPosition");
 const closePreviewBtn = document.getElementById("closePreviewBtn");
+const previousPreviewBtn = document.getElementById("previousPreviewBtn");
+const nextPreviewBtn = document.getElementById("nextPreviewBtn");
+let previewTrigger = null;
+let previewItems = [];
+let currentPreviewIndex = 0;
+
+function showPreviewAt(index) {
+
+    if (index < 0 || index >= previewItems.length) {
+
+        return;
+
+    }
+
+    currentPreviewIndex = index;
+
+    const preview = previewItems[currentPreviewIndex];
+
+    previewImage.src = preview.imageUrl;
+
+    previewFileName.textContent = preview.fileName;
+
+    previewPosition.textContent =
+        `${currentPreviewIndex + 1} / ${previewItems.length}`;
+
+    const navigationDisabled = previewItems.length < 2;
+
+    previousPreviewBtn.disabled = navigationDisabled;
+
+    nextPreviewBtn.disabled = navigationDisabled;
+
+    previewModal.classList.remove("hidden");
+
+}
+
+
+function openPreview(imageUrl) {
+
+    previewTrigger = document.activeElement;
+
+    const index = previewItems.findIndex(
+        (preview) => preview.imageUrl === imageUrl
+    );
+
+    if (index !== -1) {
+
+        showPreviewAt(index);
+
+    }
+
+
+    closePreviewBtn.focus();
+}
+
+
+function navigatePreview(direction) {
+
+    if (previewItems.length < 2) {
+
+        return;
+
+    }
+
+    const nextIndex =
+        (currentPreviewIndex + direction + previewItems.length) %
+        previewItems.length;
+
+    showPreviewAt(nextIndex);
+}
+
+
+function closePreview() {
+
+    previewModal.classList.add("hidden");
+
+    previewImage.src = "";
+
+    if (previewTrigger instanceof HTMLElement) {
+
+        previewTrigger.focus();
+
+    }
+}
+
+
+closePreviewBtn.addEventListener(
+    "click",
+    closePreview
+);
+
+previousPreviewBtn.addEventListener(
+    "click",
+    () => navigatePreview(-1)
+);
+
+nextPreviewBtn.addEventListener(
+    "click",
+    () => navigatePreview(1)
+);
+
+
+previewModal.addEventListener(
+    "click",
+    (event) => {
+
+        if (event.target === previewModal) {
+
+            closePreview();
+
+        }
+
+    }
+);
+
+
+document.addEventListener(
+    "keydown",
+    (event) => {
+
+        if (previewModal.classList.contains("hidden")) {
+
+            return;
+
+        }
+
+        if (event.key === "Escape") {
+
+            closePreview();
+
+        }
+
+        if (event.key === "ArrowLeft") {
+
+            navigatePreview(-1);
+
+        }
+
+        if (event.key === "ArrowRight") {
+
+            navigatePreview(1);
+
+        }
+
+    }
+);
+
 
 // ================= AUTH MODE =================
 
@@ -464,6 +611,8 @@ async function uploadSinglePhoto(
 
 async function loadPhotos() {
 
+    previewItems = [];
+
     gallery.innerHTML =
         "<p>Loading photos...</p>";
 
@@ -564,6 +713,11 @@ async function createPhotoCard(photo) {
     const imageUrl =
         URL.createObjectURL(imageData);
 
+    previewItems.push({
+        imageUrl,
+        fileName: photo.file_name,
+    });
+
 
     const card =
         document.createElement("div");
@@ -593,13 +747,22 @@ async function createPhotoCard(photo) {
 
                 <button
                     class="download-btn"
+                    type="button"
                     onclick="downloadPhoto('${photo.file_path}', '${escapeHTML(photo.file_name)}')"
                 >
                     Download
                 </button>
 
                 <button
+                    class="preview-btn"
+                    type="button"
+                >
+                    Preview
+                </button>
+
+                <button
                     class="delete-btn"
+                    type="button"
                     onclick="deletePhoto('${photo.id}', '${photo.file_path}')"
                 >
                     Delete
@@ -612,6 +775,13 @@ async function createPhotoCard(photo) {
 
 
     gallery.appendChild(card);
+
+    card
+        .querySelector(".preview-btn")
+        .addEventListener(
+            "click",
+            () => openPreview(imageUrl)
+        );
 }
 
 
