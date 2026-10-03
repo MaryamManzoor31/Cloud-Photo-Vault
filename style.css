@@ -1,3 +1,21 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap");
+
+:root {
+    color-scheme: dark;
+    font-family: "DM Sans", sans-serif;
+    background: #1d1e1c;
+    color: #f4f3ef;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    --page: #1d1e1c;
+    --surface: #252623;
+    --surface-raised: #2c2d29;
+    --text: #f4f3ef;
+    --muted: #989991;
+    --accent: #d0e27b;
+    --line: rgba(255, 255, 255, 0.11);
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -5,407 +23,483 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background: #f5f7fb;
-    color: #222;
+    min-width: 320px;
+    min-height: 100vh;
+    background:
+        radial-gradient(ellipse at 50% 0, rgba(255, 255, 255, 0.035), transparent 42rem),
+        var(--page);
+    color: var(--text);
 }
 
+button,
+input {
+    font: inherit;
+}
 
-/* ================= GENERAL ================= */
+button {
+    border: 0;
+    cursor: pointer;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
 
 .hidden {
     display: none !important;
 }
 
-button {
-    border: none;
-    cursor: pointer;
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-decoration: none;
 }
 
+.brand-mark {
+    display: grid;
+    width: 28px;
+    height: 28px;
+    place-items: center;
+    border: 1px solid rgba(208, 226, 123, 0.55);
+    border-radius: 50%;
+    color: var(--accent);
+    font-family: "Manrope", sans-serif;
+    font-size: 9px;
+    letter-spacing: -0.08em;
+}
 
-/* ================= LOGIN ================= */
+/* Authentication */
 
 .auth-section {
+    display: grid;
     min-height: 100vh;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    padding: 20px;
+    padding: 32px 20px;
+    place-items: center;
 }
 
 .auth-card {
-    width: 100%;
-    max-width: 420px;
-
-    background: white;
-
+    width: min(100%, 420px);
     padding: 40px;
-
-    border-radius: 16px;
-
-    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: rgba(37, 38, 35, 0.94);
+    box-shadow: 0 28px 90px rgba(0, 0, 0, 0.3);
 }
 
-.auth-card h1 {
-    text-align: center;
-    margin-bottom: 10px;
+.auth-title {
+    margin: 24px 0 28px;
+    font-family: "Manrope", sans-serif;
+    font-size: clamp(30px, 8vw, 40px);
+    font-weight: 600;
+    letter-spacing: -0.055em;
+    line-height: 1.12;
 }
 
 .subtitle {
-    text-align: center;
-    color: #777;
-    margin-bottom: 30px;
+    margin-top: 28px;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
 }
-
-
-/* ================= TABS ================= */
 
 .tabs {
     display: flex;
-    margin-bottom: 25px;
-
-    border-bottom: 1px solid #ddd;
+    margin-bottom: 22px;
+    border-bottom: 1px solid var(--line);
 }
 
 .tab {
     flex: 1;
-
-    background: none;
-
-    padding: 12px;
-
-    font-size: 15px;
+    padding: 13px 10px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
 }
 
 .tab.active {
-    color: #5b4bdb;
-
-    border-bottom: 2px solid #5b4bdb;
+    border-bottom: 2px solid var(--accent);
+    color: var(--text);
 }
 
-
-/* ================= INPUTS ================= */
-
-input[type="email"],
-input[type="password"] {
+#authForm input {
     width: 100%;
-
-    padding: 13px;
-
-    margin-bottom: 15px;
-
-    border: 1px solid #ddd;
-
+    margin-bottom: 13px;
+    padding: 14px 15px;
+    border: 1px solid var(--line);
     border-radius: 8px;
-
+    background: #1c1d1a;
+    color: var(--text);
     font-size: 14px;
 }
 
-input[type="file"] {
-    margin: 15px 0;
+#authForm input::placeholder {
+    color: #777970;
 }
 
-
-/* ================= BUTTONS ================= */
+.primary-btn,
+.secondary-btn,
+.logout-btn,
+.upload-picker {
+    display: inline-flex;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 17px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
 
 .primary-btn {
-    width: 100%;
-
-    padding: 13px;
-
-    background: #5b4bdb;
-
-    color: white;
-
-    border-radius: 8px;
-
-    font-size: 15px;
+    background: var(--accent);
+    color: #20221b;
 }
 
 .primary-btn:hover {
-    background: #493ac0;
+    background: #deed9d;
+    transform: translateY(-1px);
 }
 
-.secondary-btn {
-    padding: 10px 18px;
-
-    background: #eee;
-
-    border-radius: 8px;
-}
-
-.logout-btn {
-    padding: 10px 18px;
-
-    background: #222;
-
-    color: white;
-
-    border-radius: 8px;
-}
-
-
-/* ================= MESSAGES ================= */
-
-#authMessage,
-#uploadMessage {
-    margin-top: 15px;
-
-    text-align: center;
-
-    font-size: 14px;
-}
-
-
-/* ================= NAVBAR ================= */
-
-.navbar {
-    background: white;
-
-    padding: 20px 6%;
-
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-.navbar h1 {
-    margin-bottom: 5px;
-}
-
-#userEmail {
-    color: #777;
-    font-size: 14px;
-}
-
-
-/* ================= MAIN ================= */
-
-.main-content {
-    max-width: 1200px;
-
-    margin: auto;
-
-    padding: 40px 20px;
-}
-
-
-/* ================= UPLOAD ================= */
-
-.upload-box {
-    background: white;
-
-    padding: 25px;
-
-    border-radius: 14px;
-
-    margin-bottom: 35px;
-
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-}
-
-.upload-box h2 {
-    margin-bottom: 8px;
-}
-
-.upload-box p {
-    color: #777;
-}
-
-.upload-box .primary-btn {
-    max-width: 200px;
-}
-
-
-/* ================= GALLERY ================= */
-
-.gallery-header {
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    margin-bottom: 20px;
-}
-
-.gallery-header p {
-    color: #777;
-
+#authForm .primary-btn {
+    width: 100%;
     margin-top: 5px;
 }
 
+.secondary-btn,
+.logout-btn,
+.upload-picker {
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--text);
+}
+
+.secondary-btn:hover,
+.logout-btn:hover,
+.upload-picker:hover {
+    background: var(--surface-raised);
+}
+
+#authMessage,
+#uploadMessage {
+    min-height: 18px;
+    margin-top: 14px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* Collection page */
+
+.navbar {
+    display: flex;
+    min-height: 76px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 max(6vw, calc((100vw - 1120px) / 2));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+}
+
+.account-controls {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+#userEmail {
+    max-width: 260px;
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.logout-btn {
+    min-height: 36px;
+    padding: 0 13px;
+    font-size: 11px;
+}
+
+.main-content {
+    width: min(100% - 48px, 1120px);
+    margin: 0 auto;
+    padding: clamp(58px, 9vw, 108px) 0 48px;
+}
+
+.collection-intro {
+    max-width: 700px;
+    margin-bottom: clamp(48px, 7vw, 78px);
+}
+
+.eyebrow {
+    color: var(--accent);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+}
+
+.collection-intro h1 {
+    max-width: 680px;
+    margin-top: 18px;
+    font-family: "Manrope", sans-serif;
+    font-size: clamp(38px, 7vw, 74px);
+    font-weight: 500;
+    letter-spacing: -0.065em;
+    line-height: 1.06;
+}
+
+.collection-description {
+    margin-top: 17px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.gallery-section {
+    border-top: 1px solid var(--line);
+    padding-top: 24px;
+}
+
+.gallery-header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 20px;
+}
+
+.gallery-heading {
+    display: flex;
+    align-items: end;
+    gap: 18px;
+}
+
+.gallery-heading h2 {
+    margin-top: 7px;
+    font-family: "Manrope", sans-serif;
+    font-size: 25px;
+    font-weight: 500;
+    letter-spacing: -0.045em;
+}
+
+.gallery-heading > p {
+    padding-bottom: 3px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.gallery-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#photoInput {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    clip-path: inset(50%);
+}
+
+#photoInput:focus-visible + .primary-btn {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+
+.upload-picker {
+    cursor: pointer;
+}
+
+.upload-picker span {
+    color: var(--accent);
+    font-size: 17px;
+    font-weight: 400;
+}
+
+#uploadBtn {
+    min-height: 40px;
+}
+
+#refreshBtn {
+    min-height: 40px;
+    padding: 0 13px;
+}
+
+.upload-message:empty {
+    display: none;
+}
+
+.upload-message {
+    margin: 0 0 18px;
+}
+
+/* Image-first masonry gallery */
+
 .gallery {
     display: grid;
-
-    grid-template-columns:
-        repeat(auto-fill, minmax(220px, 1fr));
-
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    align-items: start;
+    gap: 14px;
 }
-
-
-/* ================= PHOTO CARD ================= */
 
 .photo-card {
-    background: white;
-
-    border-radius: 14px;
-
+    position: relative;
+    display: block;
+    width: 100%;
     overflow: hidden;
-
-    box-shadow:
-        0 5px 20px rgba(0, 0, 0, 0.07);
+    background: var(--surface);
 }
 
-.photo-card img {
-    width: 100%;
-
-    height: 220px;
-
-    object-fit: cover;
-
+.photo-card > img {
     display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    transition: transform 450ms cubic-bezier(0.2, 0.7, 0.2, 1), opacity 200ms ease;
+}
+
+.photo-card:hover > img {
+    transform: scale(1.025);
 }
 
 .photo-info {
-    padding: 15px;
+    position: absolute;
+    inset: auto 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 38px 14px 13px;
+    background: linear-gradient(transparent, rgba(12, 13, 12, 0.88));
+    opacity: 0;
+    transform: translateY(5px);
+    transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.photo-card:hover .photo-info,
+.photo-card:focus-within .photo-info {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .photo-name {
-    font-weight: bold;
-
-    white-space: nowrap;
-
     overflow: hidden;
-
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
     text-overflow: ellipsis;
-
-    margin-bottom: 6px;
+    white-space: nowrap;
 }
 
 .photo-date {
-    color: #888;
-
-    font-size: 12px;
-
-    margin-bottom: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 10px;
 }
 
 .photo-actions {
     display: flex;
-
     gap: 6px;
-
-    flex-wrap: wrap;
+    margin-top: 5px;
 }
 
 .photo-actions button {
+    min-height: 30px;
     flex: 1;
-
-    padding: 8px 6px;
-
-    border-radius: 7px;
-
-    font-size: 12px;
+    padding: 0 8px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 5px;
+    background: rgba(25, 26, 24, 0.76);
+    color: white;
+    font-size: 10px;
+    backdrop-filter: blur(8px);
 }
 
-.download-btn {
-    background: #eee;
+.photo-actions button:hover {
+    background: var(--accent);
+    color: #20221b;
 }
 
-.preview-btn {
-    background: #e9e7ff;
-
-    color: #493ac0;
+.empty-message,
+.gallery > p:not(.upload-message) {
+    padding: 50px 16px;
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
 }
 
-.delete-btn {
-    background: #ffe5e5;
-
-    color: #c62828;
-}
+/* Photo preview */
 
 .preview-modal {
     position: fixed;
-
-    inset: 0;
-
     z-index: 1000;
-
+    inset: 0;
     display: flex;
-
-    justify-content: center;
-
     align-items: center;
-
+    justify-content: center;
     padding: 24px;
-
-    background: rgba(0, 0, 0, 0.82);
+    background: rgba(13, 14, 13, 0.96);
+    backdrop-filter: blur(12px);
 }
 
 .preview-content {
     position: relative;
-
     display: flex;
-
-    flex-direction: column;
-
-    align-items: center;
-
-    gap: 12px;
-
     max-width: min(100%, 1100px);
-
     max-height: 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
 }
 
 .preview-content img {
     display: block;
-
     max-width: 100%;
-
-    max-height: calc(100vh - 100px);
-
+    max-height: calc(100vh - 110px);
     object-fit: contain;
 }
 
 .preview-content p {
     max-width: 100%;
-
-    color: white;
-
+    color: var(--text);
     overflow-wrap: anywhere;
-
     text-align: center;
 }
 
-.preview-nav {
+#previewPosition {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.preview-nav,
+.close-preview {
     position: absolute;
-
-    top: 50%;
-
     z-index: 1;
-
+    display: grid;
     width: 44px;
-
     height: 44px;
-
-    transform: translateY(-50%);
-
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.22);
     border-radius: 50%;
+    background: rgba(37, 38, 35, 0.85);
+    color: white;
+    font-size: 19px;
+    backdrop-filter: blur(8px);
+}
 
-    background: rgba(255, 255, 255, 0.9);
-
-    color: #222;
-
-    font-size: 20px;
+.preview-nav {
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .preview-previous {
@@ -416,86 +510,123 @@ input[type="file"] {
     right: 24px;
 }
 
+.preview-nav:hover,
+.close-preview:hover {
+    background: var(--accent);
+    color: #20221b;
+}
+
 .preview-nav:disabled {
     cursor: default;
-
-    opacity: 0.45;
+    opacity: 0.4;
 }
 
 .close-preview {
-    position: absolute;
-
-    top: -16px;
-
-    right: -16px;
-
-    z-index: 1;
-
-    width: 40px;
-
-    height: 40px;
-
-    border-radius: 50%;
-
-    background: white;
-
-    color: #222;
-
-    font-size: 28px;
-
-    line-height: 1;
+    top: -18px;
+    right: -18px;
+    font-size: 25px;
 }
 
-.empty-message {
-    color: #777;
+/* Responsive */
 
-    text-align: center;
-
-    padding: 50px;
-}
-
-
-/* ================= MOBILE ================= */
-
-@media (max-width: 600px) {
-
+@media (max-width: 700px) {
     .navbar {
-        padding: 15px;
+        min-height: 66px;
+        padding: 0 20px;
+    }
 
-        flex-direction: column;
+    .account-controls {
+        gap: 10px;
+    }
 
-        align-items: flex-start;
-
-        gap: 15px;
+    #userEmail {
+        max-width: 130px;
+        font-size: 10px;
     }
 
     .main-content {
-        padding: 20px 15px;
+        width: min(100% - 36px, 1120px);
+        padding-top: 58px;
     }
 
-    .auth-card {
-        padding: 25px;
+    .gallery-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 15px;
     }
 
-    .preview-modal {
-        padding: 16px;
-    }
-
-    .preview-previous {
-        left: 12px;
-    }
-
-    .preview-next {
-        right: 12px;
-    }
-
-    .preview-nav {
-        width: 38px;
-
-        height: 38px;
+    .gallery-controls {
+        width: 100%;
+        flex-wrap: wrap;
     }
 
     .gallery {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+        gap: 9px;
+    }
+
+    .photo-info {
+        position: static;
+        padding: 10px;
+        background: var(--surface);
+        opacity: 1;
+        transform: none;
+    }
+
+    .photo-actions {
+        gap: 4px;
+    }
+
+    .photo-actions button {
+        padding: 0 4px;
+        font-size: 9px;
+    }
+
+    .preview-previous {
+        left: 10px;
+    }
+
+    .preview-next {
+        right: 10px;
+    }
+}
+
+@media (max-width: 420px) {
+    .brand {
+        gap: 7px;
+        font-size: 8px;
+    }
+
+    .brand-mark {
+        width: 25px;
+        height: 25px;
+    }
+
+    .logout-btn {
+        min-height: 32px;
+        padding: 0 10px;
+    }
+
+    .main-content {
+        width: min(100% - 28px, 1120px);
+    }
+
+    .gallery-controls {
+        gap: 6px;
+    }
+
+    .gallery-controls > * {
+        padding-right: 10px;
+        padding-left: 10px;
+    }
+}
+
+@media (hover: none) {
+    .photo-info {
+        position: static;
+        padding: 10px;
+        background: var(--surface);
+        opacity: 1;
+        transform: none;
     }
 }

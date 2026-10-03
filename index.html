@@ -21,11 +21,16 @@
 
         <div class="auth-card">
 
-            <h1>Cloud Photo Vault</h1>
+            <a class="brand" href="#" aria-label="Cloud Photo Vault home">
+                <span class="brand-mark" aria-hidden="true">CV</span>
+                <span>CLOUD PHOTO VAULT</span>
+            </a>
 
             <p class="subtitle">
-                Securely store your photos in the cloud
+                A little space for all the moments worth keeping.
             </p>
+
+            <h1 class="auth-title">Your memories,<br>beautifully kept.</h1>
 
             <div class="tabs">
                 <button id="loginTab" class="tab active">
@@ -73,62 +78,65 @@
 
         <header class="navbar">
 
-            <div>
-                <h1>Cloud Photo Vault</h1>
-                <p id="userEmail"></p>
-            </div>
+            <a class="brand" href="#" aria-label="Cloud Photo Vault home">
+                <span class="brand-mark" aria-hidden="true">CV</span>
+                <span>CLOUD PHOTO VAULT</span>
+            </a>
 
-            <button id="logoutBtn" class="logout-btn">
-                Logout
-            </button>
+            <div class="account-controls">
+                <p id="userEmail"></p>
+                <button id="logoutBtn" class="logout-btn" type="button">
+                    Sign out
+                </button>
+            </div>
 
         </header>
 
 
         <main class="main-content">
 
-            <!-- Upload section -->
-
-            <div class="upload-box">
-
-                <h2>Upload Photos</h2>
-
-                <p>
-                    Select one or more images to store them securely in the cloud.
+            <section class="collection-intro" aria-labelledby="collectionTitle">
+                <p class="eyebrow">YOUR PRIVATE COLLECTION</p>
+                <h1 id="collectionTitle">A life in little moments.</h1>
+                <p class="collection-description">
+                    Your favorite photographs, all together in one place.
                 </p>
-
-                <input
-                    type="file"
-                    id="photoInput"
-                    accept="image/jpeg,image/png,image/webp,image/gif"
-                    multiple
-                >
-
-                <button id="uploadBtn" class="primary-btn">
-                    Upload Photos
-                </button>
-
-                <p id="uploadMessage"></p>
-
-            </div>
-
-
-            <!-- Gallery -->
+            </section>
 
             <div class="gallery-section">
 
                 <div class="gallery-header">
 
-                    <div>
-                        <h2>My Photos</h2>
+                    <div class="gallery-heading">
+                        <div>
+                            <p class="eyebrow">THE ARCHIVE</p>
+                            <h2>All photos</h2>
+                        </div>
                         <p id="photoCount">0 photos</p>
                     </div>
 
-                    <button id="refreshBtn" class="secondary-btn">
-                        Refresh
-                    </button>
+                    <div class="gallery-controls">
+                        <label class="upload-picker" for="photoInput">
+                            <span aria-hidden="true">＋</span>
+                            Choose photos
+                        </label>
+                        <input
+                            type="file"
+                            id="photoInput"
+                            accept="image/jpeg,image/png,image/webp,image/gif"
+                            multiple
+                        >
+                        <button id="uploadBtn" class="primary-btn" type="button">
+                            Upload
+                        </button>
+                        <button id="refreshBtn" class="secondary-btn" type="button" aria-label="Refresh photos">
+                            Refresh
+                        </button>
+                    </div>
 
                 </div>
+
+                <p id="uploadMessage" class="upload-message" aria-live="polite"></p>
 
                 <div id="gallery" class="gallery">
 
@@ -142,7 +150,7 @@
 
         </main>
 
-        </section>
+    </section>
 
 
     <!-- ================= PREVIEW MODAL ================= -->
