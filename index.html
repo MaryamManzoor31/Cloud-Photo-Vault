@@ -21,11 +21,6 @@
 
         <div class="auth-card">
 
-            <a class="brand" href="#" aria-label="Cloud Photo Vault home">
-                <span class="brand-mark" aria-hidden="true">CV</span>
-                <span>CLOUD PHOTO VAULT</span>
-            </a>
-
             <p class="subtitle">
                 A little space for all the moments worth keeping.
             </p>
@@ -84,6 +79,9 @@
             </a>
 
             <div class="account-controls">
+                <a href="cloud-visualizer.html" class="secondary-btn" style="font-size:11px;text-decoration:none;" title="See how the cloud works">
+                    ☁ Cloud Visualizer
+                </a>
                 <p id="userEmail"></p>
                 <button id="logoutBtn" class="logout-btn" type="button">
                     Sign out
@@ -99,7 +97,7 @@
                 <p class="eyebrow">YOUR PRIVATE COLLECTION</p>
                 <h1 id="collectionTitle">A life in little moments.</h1>
                 <p class="collection-description">
-                    Your favorite photographs, all together in one place.
+                    Your favorite photographs and videos, all together in one place.
                 </p>
             </section>
 
@@ -110,7 +108,7 @@
                     <div class="gallery-heading">
                         <div>
                             <p class="eyebrow">THE ARCHIVE</p>
-                            <h2>All photos</h2>
+                            <h2>All media</h2>
                         </div>
                         <p id="photoCount">0 photos</p>
                     </div>
@@ -118,12 +116,12 @@
                     <div class="gallery-controls">
                         <label class="upload-picker" for="photoInput">
                             <span aria-hidden="true">＋</span>
-                            Choose photos
+                            <span id="selectedPhotoCount" aria-live="polite">Choose photos and videos</span>
                         </label>
                         <input
                             type="file"
                             id="photoInput"
-                            accept="image/jpeg,image/png,image/webp,image/gif"
+                            accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/ogg,video/quicktime"
                             multiple
                         >
                         <button id="uploadBtn" class="primary-btn" type="button">
@@ -141,7 +139,7 @@
                 <div id="gallery" class="gallery">
 
                     <p class="empty-message">
-                        No photos uploaded yet.
+                        No photos or videos uploaded yet.
                     </p>
 
                 </div>
@@ -167,7 +165,7 @@
             id="previousPreviewBtn"
             class="preview-nav preview-previous"
             type="button"
-            aria-label="Previous photo"
+            aria-label="Previous media"
         >
             &#10094;
         </button>
@@ -185,6 +183,15 @@
 
             <img id="previewImage" src="" alt="Photo Preview">
 
+            <video
+                id="previewVideo"
+                class="hidden"
+                controls
+                playsinline
+                preload="metadata"
+                aria-label="Video preview"
+            ></video>
+
             <p id="previewFileName"></p>
 
             <p id="previewPosition" aria-live="polite"></p>
@@ -195,7 +202,7 @@
             id="nextPreviewBtn"
             class="preview-nav preview-next"
             type="button"
-            aria-label="Next photo"
+            aria-label="Next media"
         >
             &#10095;
         </button>

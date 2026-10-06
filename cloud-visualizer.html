@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloud Architecture &mdash; Cloud Photo Vault</title>
+<meta name="description" content="Interactive simulation of how Cloud Photo Vault stores, authenticates, and transfers photos using Supabase cloud infrastructure.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --page:#0f1012;--sf:#16181c;--s2:#1e2128;--s3:#252830;
+  --bdr:rgba(255,255,255,0.08);--bdrb:rgba(255,255,255,0.16);
+  --text:#eef0f4;--muted:#6b7280;--accent:#d0e27b;--adim:rgba(208,226,123,0.15);
+  --blue:#60a5fa;--bdim:rgba(96,165,250,0.15);
+  --purple:#a78bfa;--pdim:rgba(167,139,250,0.15);
+  --green:#34d399;--gdim:rgba(52,211,153,0.15);
+  --orange:#fb923c;--odim:rgba(251,146,60,0.15);
+  --red:#f87171;--rdim:rgba(248,113,113,0.15);
+  --cyan:#22d3ee;--cdim:rgba(34,211,238,0.15);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{min-height:100vh;background:var(--page);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
+.bggrid{position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;}
+.bgglow{position:fixed;z-index:0;border-radius:50%;filter:blur(120px);pointer-events:none;animation:pglow 8s ease-in-out infinite alternate;}
+.bg1{width:600px;height:600px;top:-200px;left:-200px;background:rgba(208,226,123,.04);}
+.bg2{width:500px;height:500px;bottom:-150px;right:-150px;background:rgba(96,165,250,.05);animation-delay:-4s;}
+@keyframes pglow{from{opacity:.6;transform:scale(.95);}to{opacity:1;transform:scale(1.05);}}
+.page{position:relative;z-index:1;}
+/* Header */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:24px clamp(24px,5vw,80px);border-bottom:1px solid var(--bdr);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100;background:rgba(15,16,18,.85);}
+.hbrand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text);}
+.bmark{width:32px;height:32px;border:1px solid rgba(208,226,123,.5);border-radius:50%;display:grid;place-items:center;font-family:'Manrope',sans-serif;font-size:9px;font-weight:800;color:var(--accent);}
+.btxt{font-size:10px;font-weight:700;letter-spacing:.16em;}
+.backbtn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border:1px solid var(--bdrb);border-radius:8px;background:transparent;color:var(--muted);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;transition:all 180ms ease;}
+.backbtn:hover{background:var(--s2);color:var(--text);}
+/* Hero */
+.hero{padding:clamp(64px,10vw,120px) clamp(24px,5vw,80px) clamp(48px,6vw,80px);max-width:1400px;margin:0 auto;}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border:1px solid var(--adim);border-radius:100px;background:var(--adim);color:var(--accent);font-size:10px;font-weight:700;letter-spacing:.18em;margin-bottom:28px;}
+.edot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:blink 1.4s ease infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+.hero h1{font-family:'Manrope',sans-serif;font-size:clamp(36px,6vw,72px);font-weight:700;letter-spacing:-.05em;line-height:1.08;margin-bottom:20px;}
+.hero h1 span{color:var(--accent);}
+.hdesc{max-width:580px;color:var(--muted);font-size:15px;line-height:1.7;margin-bottom:40px;}
+/* Scenario tabs */
+.scbar{display:flex;gap:8px;flex-wrap:wrap;}
+.scbtn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border:1px solid var(--bdr);border-radius:10px;background:var(--sf);color:var(--muted);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all 200ms ease;}
+.scbtn .dot{width:7px;height:7px;border-radius:50%;}
+.scbtn:hover{border-color:var(--bdrb);color:var(--text);}
+.scbtn.active{border-color:var(--accent);background:var(--adim);color:var(--accent);}
+/* Layout */
+.wrap{max-width:1400px;margin:0 auto;padding:0 clamp(24px,5vw,80px) 80px;}
+.vgrid{display:grid;grid-template-columns:1fr 420px;gap:24px;align-items:start;}
+@media(max-width:1100px){.vgrid{grid-template-columns:1fr;}}
+/* Canvas card */
+.ccard{border:1px solid var(--bdr);border-radius:20px;background:var(--sf);overflow:hidden;}
+.chdr{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--bdr);}
+.ctitle{font-size:13px;font-weight:600;}
+.csub{font-size:11px;color:var(--muted);margin-top:2px;}
+.cstatus{display:flex;align-items:center;gap:8px;padding:6px 14px;border-radius:100px;background:var(--gdim);border:1px solid rgba(52,211,153,.2);font-size:10px;font-weight:600;color:var(--green);}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 1.4s ease infinite;}
+#simCanvas{width:100%;display:block;height:520px;}
+/* Controls */
+.cctrl{display:flex;align-items:center;gap:10px;padding:16px 24px;border-top:1px solid var(--bdr);}
+.cbtn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border:1px solid var(--bdr);border-radius:8px;background:var(--s2);color:var(--text);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;transition:all 180ms ease;}
+.cbtn:hover{border-color:var(--bdrb);background:var(--s3);}
+.cbtn.pri{border-color:var(--accent);background:var(--adim);color:var(--accent);}
+.cbtn.pri:hover{background:rgba(208,226,123,.25);}
+.cbtn svg{flex-shrink:0;}
+.spd{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:11px;color:var(--muted);}
+.spdsl{-webkit-appearance:none;width:90px;height:4px;border-radius:2px;background:var(--s3);outline:none;}
+.spdsl::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);cursor:pointer;}
+/* Sidebar */
+.sidebar{display:flex;flex-direction:column;gap:16px;}
+.panel{border:1px solid var(--bdr);border-radius:16px;background:var(--sf);overflow:hidden;}
+.phdr{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--bdr);}
+.picon{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;font-size:14px;flex-shrink:0;}
+.ptitle{font-size:13px;font-weight:600;}
+.psub{font-size:10px;color:var(--muted);margin-top:1px;}
+/* Log */
+.loglist{padding:12px;max-height:210px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;}
+.loglist::-webkit-scrollbar{width:4px;}
+.loglist::-webkit-scrollbar-thumb{background:var(--s3);border-radius:2px;}
+.lentry{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:8px;background:var(--s2);font-size:11px;line-height:1.4;animation:slin 300ms ease;}
+@keyframes slin{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+.ltime{font-family:'JetBrains Mono',monospace;color:var(--muted);font-size:9px;white-space:nowrap;padding-top:1px;}
+.ldot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+/* Stats */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--bdr);}
+.scell{padding:16px 20px;background:var(--sf);}
+.slabel{font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;}
+.sval{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:500;margin-top:4px;}
+/* Flow */
+.fdesc{padding:16px 20px;}
+.fstep{display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--bdr);}
+.fstep:last-child{border-bottom:none;}
+.fnum{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:9px;font-weight:700;flex-shrink:0;margin-top:1px;}
+.ftxt{font-size:11px;line-height:1.55;color:var(--muted);}
+.ftxt strong{color:var(--text);font-weight:600;}
+/* Info bar */
+.ibar{margin-bottom:20px;padding:16px 24px;border:1px solid var(--bdr);border-radius:14px;background:var(--sf);display:flex;align-items:center;gap:16px;}
+.ibadge{padding:4px 12px;border-radius:100px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;border:1px solid transparent;}
+.itext{font-size:12px;color:var(--muted);line-height:1.5;}
+/* Tech */
+.techrow{display:flex;flex-wrap:wrap;gap:8px;padding:16px 20px;}
+.tbadge{padding:5px 12px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;border:1px solid transparent;}
+</style>
+</head>
+<body>
+<div class="bggrid"></div><div class="bgglow bg1"></div><div class="bgglow bg2"></div>
+<div class="page">
+<header class="hdr">
+  <a class="hbrand" href="index.html"><div class="bmark">CV</div><span class="btxt">CLOUD PHOTO VAULT</span></a>
+  <a class="backbtn" href="index.html">&larr; Back to App</a>
+</header>
+<section class="hero">
+  <div class="eyebrow"><div class="edot"></div>CLOUD ARCHITECTURE VISUALIZER</div>
+  <h1>How the <span>cloud</span><br>actually works.</h1>
+  <p class="hdesc">An interactive simulation of how Cloud Photo Vault moves your data &mdash; from authentication handshakes and JWT tokens, to encrypted file transfers, database writes, and secure CDN delivery via Supabase.</p>
+  <div class="scbar" role="tablist">
+    <button class="scbtn active" data-sc="auth" role="tab" aria-selected="true"><span class="dot" style="background:#60a5fa"></span>Authentication</button>
+    <button class="scbtn" data-sc="upload" role="tab"><span class="dot" style="background:#d0e27b"></span>Photo Upload</button>
+    <button class="scbtn" data-sc="fetch" role="tab"><span class="dot" style="background:#a78bfa"></span>Fetch Gallery</button>
+    <button class="scbtn" data-sc="delete" role="tab"><span class="dot" style="background:#f87171"></span>Delete Photo</button>
+  </div>
+</section>
+<div class="wrap">
+  <div class="ibar">
+    <span class="ibadge" id="scBadge" style="background:rgba(96,165,250,.12);color:#60a5fa;border-color:rgba(96,165,250,.3)">AUTH FLOW</span>
+    <p class="itext" id="scDesc">The browser sends credentials to Supabase Auth. A JWT is issued, stored in localStorage, and silently refreshed to keep sessions alive.</p>
+  </div>
+  <div class="vgrid">
+    <div class="ccard">
+      <div class="chdr">
+        <div><div class="ctitle">Live Data Flow Simulation</div><div class="csub" id="scLabel">Authentication &mdash; Login / Sign Up</div></div>
+        <div class="cstatus"><div class="sdot"></div>Live simulation</div>
+      </div>
+      <canvas id="simCanvas"></canvas>
+      <div class="cctrl">
+        <button class="cbtn pri" id="ppBtn">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path id="ppIcon" d="M2 1L10 6L2 11V1Z" fill="currentColor"/></svg>
+          <span id="ppLbl">Pause</span>
+        </button>
+        <button class="cbtn" id="replayBtn">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 6A5 5 0 1 0 6 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M1 1V6H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Replay
+        </button>
+        <div class="spd">
+          Speed
+          <input type="range" class="spdsl" id="spdSl" min="0.3" max="3" step="0.1" value="1">
+          <span id="spdLbl">1x</span>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar">
+      <div class="panel">
+        <div class="phdr"><div class="picon" style="background:var(--adim)">&#128202;</div><div><div class="ptitle">Live Metrics</div><div class="psub">Real-time counters</div></div></div>
+        <div class="sgrid">
+          <div class="scell"><div class="slabel">Packets Sent</div><div class="sval" id="stPkts" style="color:var(--accent)">0</div></div>
+          <div class="scell"><div class="slabel">Latency</div><div class="sval" id="stLat" style="color:var(--blue)">&mdash;</div></div>
+          <div class="scell"><div class="slabel">DB Writes</div><div class="sval" id="stDB" style="color:var(--purple)">0</div></div>
+          <div class="scell"><div class="slabel">Storage</div><div class="sval" id="stStor" style="color:var(--green)">0 KB</div></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="phdr"><div class="picon" style="background:var(--bdim)">&#128203;</div><div><div class="ptitle">Activity Log</div><div class="psub">Simulated event stream</div></div></div>
+        <div class="loglist" id="logList"></div>
+      </div>
+      <div class="panel">
+        <div class="phdr"><div class="picon" style="background:var(--pdim)">&#9889;</div><div><div class="ptitle">Tech Stack</div><div class="psub">Supabase cloud services</div></div></div>
+        <div class="techrow">
+          <span class="tbadge" style="background:var(--bdim);color:var(--blue);border-color:rgba(96,165,250,.2)">Supabase Auth</span>
+          <span class="tbadge" style="background:var(--gdim);color:var(--green);border-color:rgba(52,211,153,.2)">Storage (S3)</span>
+          <span class="tbadge" style="background:var(--pdim);color:var(--purple);border-color:rgba(167,139,250,.2)">PostgreSQL</span>
+          <span class="tbadge" style="background:var(--odim);color:var(--orange);border-color:rgba(251,146,60,.2)">Row Level Security</span>
+          <span class="tbadge" style="background:var(--cdim);color:var(--cyan);border-color:rgba(34,211,238,.2)">JWT Tokens</span>
+          <span class="tbadge" style="background:var(--rdim);color:var(--red);border-color:rgba(248,113,113,.2)">TLS/HTTPS</span>
+          <span class="tbadge" style="background:var(--adim);color:var(--accent);border-color:rgba(208,226,123,.2)">PostgREST API</span>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="phdr"><div class="picon" style="background:var(--gdim)">&#128256;</div><div><div class="ptitle">Flow Breakdown</div><div class="psub" id="flSub">Authentication steps</div></div></div>
+        <div class="fdesc" id="flSteps"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<script>
+/* ============================================================
+   CLOUD ARCHITECTURE VISUALIZER  -  Canvas Simulation Engine
+   ============================================================ */
+const canvas = document.getElementById('simCanvas');
+const ctx    = canvas.getContext('2d');
+
+let W, H, DPR;
+let paused = false, speed = 1;
+let packets = [];
+let pktC = 0, dbC = 0, storKB = 0;
+let curSc = 'auth', nodes = [], conns = [];
+let scPh = 0, phTmr = 0, lastT = null;
+
+const C = {
+  accent:'#d0e27b', blue:'#60a5fa', purple:'#a78bfa',
+  green:'#34d399',  orange:'#fb923c', red:'#f87171',
+  cyan:'#22d3ee',   muted:'#6b7280', text:'#eef0f4'
+};
+
+function toRgba(hex, a){
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return 'rgba('+r+','+g+','+b+','+a+')';
+}
+
+/* -- RESIZE ------------------------------------------------- */
+function resize(){
+  DPR = window.devicePixelRatio || 1;
+  W = canvas.clientWidth; H = canvas.clientHeight;
+  canvas.width = W*DPR; canvas.height = H*DPR;
+  ctx.scale(DPR, DPR);
+  buildNodes();
+}
+
+/* -- NODES -------------------------------------------------- */
+function buildNodes(){
+  const c1=W*.10, c2=W*.30, c3=W*.54, c4=W*.78, c5=W*.95;
+  const r1=H*.18, r2=H*.50, r3=H*.82;
+  nodes = [
+    {id:'browser', lbl:'Browser',        sub:'Your App',             x:c1,y:r2, col:C.cyan,   tag:'WEB', w:100,h:60},
+    {id:'auth',    lbl:'Auth Server',     sub:'GoTrue / JWT',         x:c2,y:r1, col:C.blue,   tag:'AUTH',w:112,h:60},
+    {id:'api',     lbl:'PostgREST',       sub:'Auto REST API',        x:c3,y:r2, col:C.accent, tag:'API', w:110,h:60},
+    {id:'storage', lbl:'Object Storage',  sub:'S3-compatible',        x:c2,y:r3, col:C.green,  tag:'S3',  w:122,h:60},
+    {id:'db',      lbl:'PostgreSQL',      sub:'Row Level Security',   x:c4,y:r3, col:C.purple, tag:'DB',  w:125,h:60},
+    {id:'cdn',     lbl:'CDN / Edge',      sub:'Global delivery',      x:c4,y:r1, col:C.orange, tag:'CDN', w:110,h:60},
+    {id:'tls',     lbl:'TLS Layer',       sub:'End-to-end encrypt',   x:c5,y:r2, col:C.red,    tag:'TLS', w:112,h:60},
+  ];
+  conns = [
+    {f:'browser',t:'auth',    col:C.blue},
+    {f:'browser',t:'api',     col:C.accent},
+    {f:'browser',t:'storage', col:C.green},
+    {f:'api',    t:'db',      col:C.purple},
+    {f:'api',    t:'cdn',     col:C.orange},
+    {f:'storage',t:'db',      col:C.purple, dash:true},
+    {f:'tls',    t:'api',     col:C.red,    dash:true},
+    {f:'cdn',    t:'browser', col:C.orange, dash:true},
+  ];
+}
+function gn(id){ return nodes.find(n=>n.id===id); }
+
+/* -- PACKETS ----------------------------------------------- */
+function spawn(fid, tid, col, lbl, cb, delay=0){
+  const f=gn(fid), t=gn(tid);
+  if(!f||!t) return;
+  packets.push({
+    fx:f.x,fy:f.y, tx:t.x,ty:t.y, x:f.x,y:f.y,
+    col,lbl, prog:0, spd:.007+Math.random()*.004,
+    size:8, trail:[], delay, elapsed:0,
+    done:false, cb, fid, tid
+  });
+}
+
+function ease(t){ return t<.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2; }
+
+function updatePkts(dt){
+  for(const p of packets){
+    if(p.done) continue;
+    p.elapsed += dt;
+    if(p.elapsed < p.delay) continue;
+    p.trail.push({x:p.x, y:p.y, a:1});
+    if(p.trail.length>18) p.trail.shift();
+    p.prog += p.spd * speed * (dt/16);
+    if(p.prog >= 1){ p.prog=1; p.done=true; if(p.cb) p.cb(); }
+    const e = ease(p.prog);
+    p.x = p.fx + (p.tx-p.fx)*e;
+    p.y = p.fy + (p.ty-p.fy)*e;
+    p.trail.forEach((pt,i)=>{ pt.a = (i/p.trail.length)*.6; });
+  }
+  packets = packets.filter(p => !p.done || p.trail.length>0);
+}
+
+/* -- SCENARIOS --------------------------------------------- */
+const SC = {
+  auth:{
+    label:'Authentication - Login / Sign Up', badge:'AUTH FLOW', bc:C.blue,
+    desc:'The browser sends credentials to Supabase Auth. A JWT access token is issued, stored in localStorage, and auto-refreshed silently.',
+    flSub:'Authentication steps',
+    steps:[
+      {n:1,c:C.blue,  t:'<strong>Credentials sent</strong> - email + password over TLS-encrypted HTTPS to Supabase Auth (GoTrue).'},
+      {n:2,c:C.cyan,  t:'<strong>Identity verified</strong> - bcrypt hash comparison, MFA checks, rate-limit guard applied.'},
+      {n:3,c:C.accent,t:'<strong>JWT issued</strong> - signed access token (1 h) + refresh token (1 week) returned to browser.'},
+      {n:4,c:C.green, t:'<strong>Session stored</strong> - tokens saved in localStorage; SDK auto-refreshes on expiry silently.'},
+    ],
+    run(ph, lg, bmp){
+      if(ph===0){
+        lg(C.blue,'POST /auth/v1/token - credentials sent');
+        spawn('browser','auth',C.blue,'creds',()=>{
+          bmp('p'); lg(C.cyan,'Identity verified - bcrypt passed');
+          spawn('auth','browser',C.cyan,'JWT',()=>{
+            bmp('p'); lg(C.accent,'JWT stored in localStorage');
+            lg(C.green,'Session active - auto-refresh on');
+          },200);
+        }); return 240;
+      }
+      if(ph===1){
+        lg(C.blue,'Refresh token sent silently');
+        spawn('browser','auth',C.blue,'refresh',()=>{
+          bmp('p');
+          spawn('auth','browser',C.cyan,'new JWT',()=>{ bmp('p'); lg(C.green,'New JWT - session extended'); },100);
+        }); return 220;
+      }
+      lg(C.blue,'getSession() - reading localStorage');
+      spawn('browser','auth',C.blue,'check',()=>{ bmp('p'); lg(C.green,'Valid session - user authenticated'); });
+      return 180;
+    }
+  },
+  upload:{
+    label:'Photo Upload - Storage + Database', badge:'UPLOAD FLOW', bc:C.accent,
+    desc:'File uploaded to Supabase Storage (S3) with JWT auth. Metadata inserted into PostgreSQL. Row Level Security isolates your data.',
+    flSub:'Upload pipeline steps',
+    steps:[
+      {n:1,c:C.cyan,  t:'<strong>File selected</strong> - browser reads blob, generates unique path: userId/timestamp-random.ext'},
+      {n:2,c:C.green, t:'<strong>Storage upload</strong> - multipart PUT to S3-compatible bucket with JWT in Authorization header.'},
+      {n:3,c:C.purple,t:'<strong>DB insert</strong> - metadata (filename, path, size, MIME) written to photos table via PostgREST.'},
+      {n:4,c:C.orange,t:'<strong>RLS enforced</strong> - Row Level Security policy ensures only your user_id can read the record.'},
+    ],
+    run(ph, lg, bmp){
+      if(ph===0){
+        lg(C.cyan,'File blob prepared - unique path generated');
+        spawn('browser','storage',C.green,'file',()=>{
+          bmp('p'); bmp('s'); lg(C.green,'File stored in S3 bucket');
+          spawn('browser','api',C.accent,'metadata',()=>{
+            bmp('p');
+            spawn('api','db',C.purple,'INSERT',()=>{
+              bmp('p'); bmp('d');
+              lg(C.purple,'photos INSERT successful');
+              lg(C.orange,'RLS policy - user_id verified');
+            },100);
+          },150);
+        }); return 280;
+      }
+      if(ph===1){
+        lg(C.cyan,'Uploading 2nd file in batch...');
+        spawn('browser','storage',C.green,'file',()=>{
+          bmp('p'); bmp('s');
+          spawn('browser','api',C.accent,'meta',()=>{
+            bmp('p');
+            spawn('api','db',C.purple,'INSERT',()=>{ bmp('p'); bmp('d'); lg(C.purple,'Batch upload - 2 photos saved'); },80);
+          },120);
+        }); return 250;
+      }
+      lg(C.cyan,'Duplicate check - upsert:false enforced');
+      spawn('browser','api',C.accent,'check',()=>{ bmp('p'); lg(C.green,'No conflict - safe to upload'); });
+      return 160;
+    }
+  },
+  fetch:{
+    label:'Fetch Gallery - Query + CDN Delivery', badge:'FETCH FLOW', bc:C.purple,
+    desc:'Browser queries PostgreSQL via PostgREST. Blobs fetched from Storage via CDN edge nodes for fast global delivery.',
+    flSub:'Gallery fetch pipeline',
+    steps:[
+      {n:1,c:C.purple,t:'<strong>Auth check</strong> - SDK calls getUser() to verify JWT before any data request.'},
+      {n:2,c:C.accent,t:'<strong>DB query</strong> - SELECT * FROM photos WHERE user_id=? ORDER BY created_at DESC via PostgREST.'},
+      {n:3,c:C.orange,t:'<strong>CDN delivery</strong> - storage objects served from edge node nearest to the user (low latency).'},
+      {n:4,c:C.cyan,  t:'<strong>Blob to URL</strong> - browser creates object URL from blob; image renders in gallery grid.'},
+    ],
+    run(ph, lg, bmp){
+      if(ph===0){
+        lg(C.purple,'getUser() - JWT validation');
+        spawn('browser','auth',C.blue,'JWT',()=>{
+          bmp('p'); lg(C.blue,'Token valid - user confirmed');
+          spawn('browser','api',C.accent,'SELECT',()=>{
+            bmp('p');
+            spawn('api','db',C.purple,'query',()=>{
+              bmp('p'); lg(C.purple,'Query returned 8 records');
+              spawn('db','api',C.purple,'rows',()=>{
+                bmp('p');
+                spawn('api','browser',C.accent,'JSON',()=>{ bmp('p'); lg(C.accent,'Photo list received'); });
+              },80);
+            },100);
+          },150);
+        }); return 320;
+      }
+      if(ph===1){
+        lg(C.orange,'Downloading blob from CDN edge');
+        spawn('cdn','browser',C.orange,'blob',()=>{ bmp('p'); bmp('s'); lg(C.cyan,'createObjectURL - photo rendered'); });
+        spawn('cdn','browser',C.orange,'blob',()=>{ bmp('p'); bmp('s'); lg(C.cyan,'createObjectURL - photo rendered'); },90);
+        return 200;
+      }
+      lg(C.orange,'CDN cache HIT - no re-download');
+      spawn('cdn','browser',C.orange,'cached',()=>{ bmp('p'); lg(C.green,'Instant load from edge cache'); });
+      return 150;
+    }
+  },
+  delete:{
+    label:'Delete Photo - Storage + DB Cleanup', badge:'DELETE FLOW', bc:C.red,
+    desc:'Storage blob removed first, then DB record deleted. If DB delete fails, user is notified - no silent data loss.',
+    flSub:'Deletion safety pipeline',
+    steps:[
+      {n:1,c:C.red,   t:'<strong>Auth guard</strong> - RLS policy verified: only the owner can delete their own photos.'},
+      {n:2,c:C.green, t:'<strong>Storage remove</strong> - blob deleted from S3 bucket first to prevent orphaned DB records.'},
+      {n:3,c:C.purple,t:'<strong>DB delete</strong> - DELETE FROM photos WHERE id=? AND user_id=? via PostgREST.'},
+      {n:4,c:C.cyan,  t:'<strong>Gallery refresh</strong> - loadPhotos() called; gallery re-renders without deleted image.'},
+    ],
+    run(ph, lg, bmp){
+      if(ph===0){
+        lg(C.red,'Delete confirmed - RLS ownership check');
+        spawn('browser','api',C.red,'DELETE',()=>{
+          bmp('p');
+          spawn('api','db',C.red,'check',()=>{
+            bmp('p'); lg(C.red,'Ownership verified via RLS');
+            spawn('browser','storage',C.red,'remove',()=>{
+              bmp('p'); lg(C.green,'Blob removed from S3');
+              spawn('api','db',C.purple,'DELETE',()=>{
+                bmp('p'); bmp('d');
+                lg(C.purple,'DB record deleted - cleanup done');
+                lg(C.cyan,'loadPhotos() - gallery refreshed');
+              },100);
+            },80);
+          },80);
+        }); return 300;
+      }
+      if(ph===1){
+        lg(C.orange,'Edge case: storage OK, DB failed');
+        lg(C.red,'User notified - partial failure handled gracefully');
+        spawn('api','browser',C.red,'error',()=>{ bmp('p'); lg(C.orange,'Error surfaced - no silent data loss'); });
+        return 200;
+      }
+      lg(C.purple,'Batch delete - multiple files');
+      spawn('browser','storage',C.red,'remove[]',()=>{
+        bmp('p');
+        spawn('api','db',C.purple,'DELETE',()=>{ bmp('p'); bmp('d'); lg(C.purple,'Batch cleanup complete'); });
+      }); return 180;
+    }
+  }
+};
+
+/* -- LOG --------------------------------------------------- */
+const logEl = document.getElementById('logList');
+let logCnt = 0;
+function lg(color, text){
+  const t = new Date().toTimeString().slice(0,8);
+  const el = document.createElement('div');
+  el.className = 'lentry';
+  el.innerHTML =
+    '<span class="ltime">'+t+'</span>'+
+    '<span class="ldot" style="background:'+color+'"></span>'+
+    '<span>'+text+'</span>';
+  logEl.prepend(el);
+  if(++logCnt > 40) while(logEl.children.length > 40) logEl.removeChild(logEl.lastChild);
+}
+
+/* -- STATS -------------------------------------------------- */
+const LATS = [38,45,52,61,29,74,43,58];
+function bmp(type){
+  if(type==='p'){
+    pktC++;
+    document.getElementById('stPkts').textContent = pktC;
+    document.getElementById('stLat').textContent  = LATS[pktC%LATS.length]+'ms';
+  }
+  if(type==='d'){ dbC++; document.getElementById('stDB').textContent = dbC; }
+  if(type==='s'){
+    storKB += Math.floor(Math.random()*400+100);
+    document.getElementById('stStor').textContent =
+      storKB >= 1024 ? (storKB/1024).toFixed(1)+' MB' : storKB+' KB';
+  }
+}
+
+/* -- DRAW --------------------------------------------------- */
+function rrect(x,y,w,h,r){
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+}
+
+function drawNode(n, hlIds){
+  const hl = hlIds.has(n.id);
+  ctx.save(); ctx.translate(n.x, n.y);
+  if(hl){ ctx.shadowColor=n.col; ctx.shadowBlur=24; }
+  ctx.beginPath(); rrect(-n.w/2,-n.h/2,n.w,n.h,12);
+  ctx.fillStyle = hl ? toRgba(n.col,.18) : '#1a1d23'; ctx.fill();
+  ctx.strokeStyle = hl ? n.col : 'rgba(255,255,255,.1)';
+  ctx.lineWidth = hl ? 1.8 : 1; ctx.stroke(); ctx.shadowBlur=0;
+  // tag pill
+  const tw = ctx.measureText(n.tag).width + 16;
+  ctx.beginPath(); rrect(-tw/2,-n.h/2+3,tw,16,8);
+  ctx.fillStyle = toRgba(n.col,.22); ctx.fill();
+  ctx.font='bold 8px JetBrains Mono,monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle=n.col; ctx.fillText(n.tag,0,-n.h/2+11);
+  // label
+  ctx.font='600 11px DM Sans,sans-serif'; ctx.fillStyle=hl?n.col:C.text; ctx.textBaseline='middle';
+  ctx.fillText(n.lbl,0,8);
+  // sub
+  ctx.font='10px DM Sans,sans-serif'; ctx.fillStyle=C.muted; ctx.fillText(n.sub,0,22);
+  ctx.restore();
+}
+
+function drawConns(hlP){
+  for(const c of conns){
+    const f=gn(c.f), t=gn(c.t); if(!f||!t) continue;
+    const k=c.f+'-'+c.t, hl=hlP.has(k)||hlP.has(c.t+'-'+c.f);
+    ctx.save();
+    ctx.strokeStyle = hl ? c.col : 'rgba(255,255,255,.06)';
+    ctx.lineWidth = hl ? 1.8 : 1;
+    if(c.dash) ctx.setLineDash([5,6]);
+    ctx.beginPath();
+    ctx.moveTo(f.x,f.y);
+    ctx.quadraticCurveTo((f.x+t.x)/2,(f.y+t.y)/2-35,t.x,t.y);
+    ctx.stroke(); ctx.restore();
+  }
+}
+
+function drawPkts(){
+  for(const p of packets){
+    if(p.done || p.elapsed<p.delay) continue;
+    // trail
+    for(let i=0;i<p.trail.length;i++){
+      const pt=p.trail[i], r=p.size*.45*(i/p.trail.length);
+      ctx.save(); ctx.globalAlpha=pt.a*.5;
+      ctx.beginPath(); ctx.arc(pt.x,pt.y,r,0,Math.PI*2);
+      ctx.fillStyle=p.col; ctx.fill(); ctx.restore();
+    }
+    // glow dot
+    ctx.save(); ctx.shadowColor=p.col; ctx.shadowBlur=14;
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.size*.6,0,Math.PI*2);
+    ctx.fillStyle=p.col; ctx.fill(); ctx.restore();
+    // label
+    if(p.lbl){
+      ctx.save(); ctx.font='500 9px JetBrains Mono,monospace';
+      ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(p.lbl,p.x,p.y-14); ctx.restore();
+    }
+  }
+}
+
+function getHL(){
+  const nids=new Set(), pairs=new Set();
+  for(const p of packets){
+    if(p.done) continue;
+    nids.add(p.fid); nids.add(p.tid);
+    pairs.add(p.fid+'-'+p.tid);
+  }
+  return{nids,pairs};
+}
+
+/* -- MAIN LOOP --------------------------------------------- */
+function loop(ts){
+  if(!lastT) lastT=ts;
+  const dt = Math.min(ts-lastT, 50); lastT=ts;
+  ctx.clearRect(0,0,W,H);
+  if(!paused){
+    updatePkts(dt); phTmr += dt*speed;
+    const s=SC[curSc], delay=s.run._d||200;
+    if(phTmr > delay){
+      phTmr=0; s.run._d=s.run(scPh,lg,bmp);
+      scPh=(scPh+1)%3;
+    }
+  }
+  const{nids,pairs}=getHL();
+  drawConns(pairs);
+  for(const n of nodes) drawNode(n,nids);
+  drawPkts();
+  // watermark
+  ctx.save(); ctx.font='500 11px DM Sans,sans-serif'; ctx.fillStyle='rgba(255,255,255,.18)';
+  ctx.textAlign='left'; ctx.textBaseline='top';
+  ctx.fillText(SC[curSc].label,16,14); ctx.restore();
+  requestAnimationFrame(loop);
+}
+
+/* -- SCENARIO SWITCH --------------------------------------- */
+function switchSc(id){
+  curSc=id; scPh=0; phTmr=0; packets=[];
+  SC[id].run._d=undefined;
+  const s=SC[id];
+  document.getElementById('scLabel').textContent = s.label;
+  document.getElementById('scDesc').textContent  = s.desc;
+  document.getElementById('flSub').textContent   = s.flSub;
+  const b=document.getElementById('scBadge');
+  b.textContent=s.badge; b.style.color=s.bc;
+  b.style.background=toRgba(s.bc,.12); b.style.borderColor=toRgba(s.bc,.3);
+  document.getElementById('flSteps').innerHTML = s.steps.map(st=>
+    '<div class="fstep">'+
+    '<div class="fnum" style="background:'+toRgba(st.c,.15)+';color:'+st.c+'">'+st.n+'</div>'+
+    '<div class="ftxt">'+st.t+'</div>'+
+    '</div>'
+  ).join('');
+  lg(s.bc, 'Switched to: '+s.badge);
+}
+
+/* -- CONTROLS --------------------------------------------- */
+document.querySelectorAll('.scbtn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.scbtn').forEach(x=>{
+      x.classList.remove('active'); x.setAttribute('aria-selected','false');
+    });
+    b.classList.add('active'); b.setAttribute('aria-selected','true');
+    switchSc(b.dataset.sc);
+  });
+});
+
+document.getElementById('ppBtn').addEventListener('click',()=>{
+  paused=!paused; lastT=null;
+  document.getElementById('ppIcon').setAttribute('d',
+    paused ? 'M2 2H5V10H2V2ZM7 2H10V10H7V2Z' : 'M2 1L10 6L2 11V1Z');
+  document.getElementById('ppLbl').textContent = paused ? 'Play' : 'Pause';
+});
+
+document.getElementById('replayBtn').addEventListener('click',()=>{
+  packets=[]; scPh=0; phTmr=0; SC[curSc].run._d=undefined;
+  if(paused){
+    paused=false;
+    document.getElementById('ppIcon').setAttribute('d','M2 1L10 6L2 11V1Z');
+    document.getElementById('ppLbl').textContent='Pause';
+  }
+  lastT=null; lg(C.accent,'Simulation restarted');
+});
+
+document.getElementById('spdSl').addEventListener('input',function(){
+  speed = parseFloat(this.value);
+  document.getElementById('spdLbl').textContent = speed.toFixed(1).replace('.0','')+'x';
+});
+
+window.addEventListener('resize', resize);
+
+/* -- INIT -------------------------------------------------- */
+resize();
+switchSc('auth');
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

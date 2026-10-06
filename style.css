@@ -362,12 +362,53 @@ input:focus-visible {
     background: var(--surface);
 }
 
+.photo-unavailable-art {
+    display: flex;
+    aspect-ratio: 4 / 5;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: #e9e7df;
+    color: var(--muted);
+    font-size: 12px;
+    text-align: center;
+}
+
+.photo-unavailable-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+}
+
+.photo-unavailable-info .photo-name {
+    color: var(--text);
+}
+
+.photo-unavailable-info .photo-date {
+    color: var(--muted);
+}
+
+.photo-unavailable-message {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
 .photo-card > img {
     display: block;
     width: 100%;
     aspect-ratio: 4 / 5;
     object-fit: cover;
     transition: transform 450ms cubic-bezier(0.2, 0.7, 0.2, 1), opacity 200ms ease;
+    cursor: zoom-in;
+}
+
+.photo-card > video {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #101010;
 }
 
 .photo-card:hover > img {
@@ -425,9 +466,51 @@ input:focus-visible {
     backdrop-filter: blur(8px);
 }
 
+.photo-actions .download-btn,
+.photo-actions .delete-btn {
+    display: grid;
+    width: 34px;
+    flex: 0 0 34px;
+    place-items: center;
+    padding: 0;
+}
+
+.photo-actions .download-btn {
+    border: 0;
+    background: transparent;
+    transition: background-color 150ms ease, transform 150ms ease;
+}
+
+.photo-actions .download-btn svg,
+.photo-actions .delete-btn svg {
+    width: 15px;
+    height: 15px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+}
+
+.photo-actions .download-btn svg {
+    stroke: #d7fb89;
+    stroke-width: 1;
+}
+
 .photo-actions button:hover {
     background: var(--accent);
     color: #20221b;
+}
+
+.photo-actions .download-btn:hover,
+.photo-actions .download-btn:focus-visible {
+    background: var(--accent);
+    transform: scale(1.08);
+}
+
+.photo-actions .download-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
 }
 
 .empty-message,
@@ -462,11 +545,17 @@ input:focus-visible {
     gap: 10px;
 }
 
-.preview-content img {
+.preview-content img,
+.preview-content video {
     display: block;
     max-width: 100%;
     max-height: calc(100vh - 110px);
     object-fit: contain;
+}
+
+.preview-content video {
+    width: min(100%, 1100px);
+    background: #000;
 }
 
 .preview-content p {
